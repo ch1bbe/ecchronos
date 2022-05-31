@@ -1,5 +1,6 @@
 # Changes
 
+<<<<<<< HEAD
 ## Version 1.2.1
 
 * Repairs not scheduled when statistics disabled - Issue #175
@@ -10,6 +11,8 @@
 * Improve Alarm logging - Issue #191
 
 ## Version 1.2.0
+
+* Fix JMX URI validation with new Java versions - Issue #306
 
 ### Merged from 1.0
 
