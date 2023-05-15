@@ -16,16 +16,9 @@ package com.ericsson.bss.cassandra.ecchronos.core.repair.state;
 
 import java.net.InetAddress;
 import java.time.Clock;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.*;
 import com.datastax.driver.core.utils.UUIDs;
 import com.ericsson.bss.cassandra.ecchronos.connection.StatementDecorator;
 import com.ericsson.bss.cassandra.ecchronos.core.utils.LongTokenRange;
@@ -45,12 +38,13 @@ public class RepairHistoryProviderImpl implements RepairHistoryProvider
     private static final String ID_COLUMN = "id";
     private static final String STATUS_COLUMN = "status";
     private static final String PARTICIPANTS_COLUMN = "participants";
+    private static final String COORDINATOR_COLUMN = "coordinator";
 
     private static final String KEYSPACE_NAME = "system_distributed";
     private static final String REPAIR_HISTORY = "repair_history";
 
     private static final String REPAIR_HISTORY_BY_TIME_STATEMENT = String
-            .format("SELECT id, range_begin, range_end, status, participants FROM %s.%s WHERE keyspace_name=? AND columnfamily_name=? AND id >= minTimeuuid(?) and id <= maxTimeuuid(?)", KEYSPACE_NAME, REPAIR_HISTORY);
+            .format("SELECT id, range_begin, range_end, status, participants, coordinator FROM %s.%s WHERE keyspace_name=? AND columnfamily_name=? AND id >= minTimeuuid(?) and id <= maxTimeuuid(?)", KEYSPACE_NAME, REPAIR_HISTORY);
 
     private final Session mySession;
     private final StatementDecorator myStatementDecorator;
@@ -131,11 +125,21 @@ public class RepairHistoryProviderImpl implements RepairHistoryProvider
                     LongTokenRange tokenRange = new LongTokenRange(rangeBegin, rangeEnd);
                     UUID id = row.getUUID(ID_COLUMN);
                     Set<InetAddress> participants = row.getSet(PARTICIPANTS_COLUMN, InetAddress.class);
+
+                    Set<InetAddress> nodes = new HashSet<>();
+                    for (InetAddress participant : participants)
+                    {
+                        nodes.add(participant);
+                    }
+
+                    InetAddress coordinator = row.getInet(COORDINATOR_COLUMN);
+                    nodes.add(coordinator);
+
                     String status = row.getString(STATUS_COLUMN);
 
                     long startedAt = UUIDs.unixTimestamp(id);
 
-                    RepairEntry repairEntry = new RepairEntry(tokenRange, startedAt, participants, status);
+                    RepairEntry repairEntry = new RepairEntry(tokenRange, startedAt, nodes, status);
 
                     if (myPredicate.apply(repairEntry))
                     {
@@ -152,7 +156,8 @@ public class RepairHistoryProviderImpl implements RepairHistoryProvider
             return !row.isNull(PARTICIPANTS_COLUMN) &&
                     !row.isNull(RANGE_BEGIN_COLUMN) &&
                     !row.isNull(RANGE_END_COLUMN) &&
-                    !row.isNull(ID_COLUMN);
+                    !row.isNull(ID_COLUMN) &&
+                    !row.isNull(COORDINATOR_COLUMN);
         }
     }
 }
