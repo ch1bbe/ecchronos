@@ -50,7 +50,7 @@ public class RepairHistoryProviderImpl implements RepairHistoryProvider
     private static final String REPAIR_HISTORY = "repair_history";
 
     private static final String REPAIR_HISTORY_BY_TIME_STATEMENT = String
-            .format("SELECT id, range_begin, range_end, status, participants FROM %s.%s WHERE keyspace_name=? AND columnfamily_name=? AND id >= minTimeuuid(?) and id <= maxTimeuuid(?)", KEYSPACE_NAME, REPAIR_HISTORY);
+            .format("SELECT id, range_begin, range_end, status, participants, coordinator, coordinator FROM %s.%s WHERE keyspace_name=? AND columnfamily_name=? AND id >= minTimeuuid(?) and id <= maxTimeuuid(?)", KEYSPACE_NAME, REPAIR_HISTORY);
 
     private final Session mySession;
     private final StatementDecorator myStatementDecorator;
