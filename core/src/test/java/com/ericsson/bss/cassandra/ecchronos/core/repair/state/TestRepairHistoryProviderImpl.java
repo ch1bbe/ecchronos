@@ -67,7 +67,7 @@ public class TestRepairHistoryProviderImpl extends AbstractCassandraTest
     @BeforeClass
     public static void startup()
     {
-        myInsertRecordStatement = mySession.prepare("INSERT INTO system_distributed.repair_history (keyspace_name, columnfamily_name, participants, id, started_at, finished_at, range_begin, range_end, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        myInsertRecordStatement = mySession.prepare("INSERT INTO system_distributed.repair_history (keyspace_name, columnfamily_name, coordinator, participants, id, started_at, finished_at, range_begin, range_end, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         repairHistoryProvider = new RepairHistoryProviderImpl(mySession, s -> s, LOOKBACK_TIME, mockClock(CLOCK_TIME));
     }
@@ -290,6 +290,7 @@ public class TestRepairHistoryProviderImpl extends AbstractCassandraTest
         mySession.execute(myInsertRecordStatement.bind(
                 keyspace,
                 table,
+                hosts.stream().findFirst().get(),
                 hosts,
                 UUIDs.startOf(started),
                 new Date(started),
@@ -307,6 +308,7 @@ public class TestRepairHistoryProviderImpl extends AbstractCassandraTest
         mySession.execute(myInsertRecordStatement.bind(
                 keyspace,
                 table,
+                repairEntry.getParticipants().stream().findFirst().get(),
                 repairEntry.getParticipants(),
                 UUIDs.startOf(repairEntry.getStartedAt()),
                 new Date(repairEntry.getStartedAt()),
