@@ -71,7 +71,7 @@
 
         <pax-exam.version>4.13.1</pax-exam.version>
         <pax-logging-logback.version>1.8.4</pax-logging-logback.version>
-        <apache.karaf.version>4.2.8</apache.karaf.version>
+        <apache.karaf.version>4.4.3</apache.karaf.version>
         <org.apache.felix.scr.version>2.1.14</org.apache.felix.scr.version>
         <pax-url.version>2.4.7</pax-url.version>
         <javax.inject.version>1</javax.inject.version>
@@ -93,7 +93,7 @@
         <com.mycila.license-maven-plugin.version>3.0</com.mycila.license-maven-plugin.version>
         <io.fabric8.docker-maven-plugin.version>0.26.0</io.fabric8.docker-maven-plugin.version>
         <org.apache.servicemix.tooling.depends-maven-plugin.version>1.2</org.apache.servicemix.tooling.depends-maven-plugin.version>
-        <org.apache.karaf.tooling.karaf-maven-plugin.version>3.0.3</org.apache.karaf.tooling.karaf-maven-plugin.version>
+        <org.apache.karaf.tooling.karaf-maven-plugin.version>4.4.3</org.apache.karaf.tooling.karaf-maven-plugin.version>
         <org.jacoco.jacoco-maven-plugin.version>0.8.4</org.jacoco.jacoco-maven-plugin.version>
 
         <org.apache.maven.plugins.maven-release-plugin.version>2.5.3</org.apache.maven.plugins.maven-release-plugin.version>
