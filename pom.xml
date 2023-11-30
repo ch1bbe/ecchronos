@@ -59,7 +59,8 @@
         <io.dropwizard.metrics.version>3.2.2</io.dropwizard.metrics.version>
         <cassandra.driver.core.version>3.4.0</cassandra.driver.core.version>
         <joda-time.version>2.9.9</joda-time.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>27.0-jre</guava.version>
+        <failureaccess.version>1.0.1</failureaccess.version>
         <slf4j.version>1.7.23</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <cassandra.version>3.0.15</cassandra.version>
@@ -170,6 +171,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>failureaccess</artifactId>
+                <version>${failureaccess.version}</version>
             </dependency>
 
             <dependency>

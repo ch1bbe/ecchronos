@@ -41,6 +41,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.google.common.io.Files;
+import org.apache.cassandra.config.EncryptionOptions;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,6 @@ import com.datastax.driver.core.RemoteEndpointAwareJdkSSLOptions;
 import com.datastax.driver.core.SSLOptions;
 import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.config.EncryptionOptions.ClientEncryptionOptions;
 import org.apache.cassandra.service.CassandraDaemon;
 
 import static org.awaitility.Awaitility.await;
@@ -245,7 +245,7 @@ public class CassandraDaemonForECChronos implements Runnable
      */
     public boolean isSSLEnabled()
     {
-        return DatabaseDescriptor.getClientEncryptionOptions().enabled;
+        return DatabaseDescriptor.getNativeProtocolEncryptionOptions().isEnabled();
     }
 
     /**
@@ -333,17 +333,18 @@ public class CassandraDaemonForECChronos implements Runnable
         TrustManager[] trustManagers = getDummyTrustManagers(); // get Trustmanager which accepts all keys
 
         SSLOptions sslOptions = null;
+
         try
         {
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(keyManagers, trustManagers, new SecureRandom());
 
-            String[] cipherSuites = DatabaseDescriptor.getClientEncryptionOptions().cipher_suites;
+            String[] cipherSuites = DatabaseDescriptor.getNativeProtocolEncryptionOptions().cipherSuitesArray();
             sslOptions = RemoteEndpointAwareJdkSSLOptions.builder().withSSLContext(sslContext).withCipherSuites(cipherSuites).build();
         }
         catch (NoSuchAlgorithmException e)
         {
-            LOG.error("Environment does support {} - Proceeding without SSL/TLS", DatabaseDescriptor.getClientEncryptionOptions().protocol);
+            LOG.error("Environment does support {} - Proceeding without SSL/TLS", DatabaseDescriptor.getNativeProtocolEncryptionOptions().acceptedProtocols());
         }
         catch (KeyManagementException e)
         {
@@ -360,7 +361,7 @@ public class CassandraDaemonForECChronos implements Runnable
      */
     private KeyManager[] getKeyManagers()
     {
-        ClientEncryptionOptions encryptionOptions = DatabaseDescriptor.getClientEncryptionOptions();
+        EncryptionOptions encryptionOptions = DatabaseDescriptor.getNativeProtocolEncryptionOptions();
         KeyStore keystore = null;
         try (FileInputStream keystoreFile = new FileInputStream(encryptionOptions.keystore))
         {
