@@ -26,11 +26,9 @@ jobs:
          - name: "Style check"
            test_suite: 'compile com.mycila:license-maven-plugin:check pmd:pmd pmd:cpd pmd:check pmd:cpd-check javadoc:jar'
          - name: "OSGi integration"
-           test_suite: 'install -P docker-integration-test,osgi-integration-tests -Dit.cassandra.version=3.0 -DskipUTs'
-         - name: "Standalone integration 3.0"
-           test_suite: 'verify -P docker-integration-test,standalone-integration-tests -Dit.cassandra.version=3.0 -DskipUTs'
-         - name: "Standalone integration 3.11"
-           test_suite: 'verify -P docker-integration-test,standalone-integration-tests -Dit.cassandra.version=3.11 -DskipUTs'
+           test_suite: 'install -P docker-integration-test,osgi-integration-tests -Dit.cassandra.version=4.0 -DskipUTs'
+         - name: "Standalone integration 4.0"
+           test_suite: 'verify -P docker-integration-test,standalone-integration-tests -Dit.cassandra.version=4.0 -DskipUTs'
     steps:
       - uses: actions/checkout@v3
       - name: Cache local Maven repository

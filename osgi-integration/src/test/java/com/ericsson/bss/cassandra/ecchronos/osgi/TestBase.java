@@ -16,11 +16,13 @@ package com.ericsson.bss.cassandra.ecchronos.osgi;
 
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.cm.ConfigurationAdminOptions;
+import org.ops4j.pax.exam.cm.ConfigurationOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 
 import static org.ops4j.pax.exam.CoreOptions.*;
@@ -33,9 +35,14 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 public class TestBase
 {
-    protected static final String CASSANDRA_HOST = System.getProperty("it-cassandra.ip");
-    protected static final String CASSANDRA_NATIVE_PORT = System.getProperty("it-cassandra.native.port");
-    protected static final String CASSANDRA_JMX_PORT = System.getProperty("it-cassandra.jmx.port");
+    protected static final String CASSANDRA_HOST_PROPERTY = "it-cassandra.ip";
+    protected static final String CASSANDRA_NATIVE_PORT_PROPERTY = "it-cassandra.native.port";
+    protected static final String CASSANDRA_JMX_PORT_PROPERTY = "it-cassandra.jmx.port";
+
+    protected static final String CASSANDRA_HOST = System.getProperty(CASSANDRA_HOST_PROPERTY);
+    protected static final String CASSANDRA_NATIVE_PORT = System.getProperty(CASSANDRA_NATIVE_PORT_PROPERTY);
+    protected static final String CASSANDRA_JMX_PORT = System.getProperty(CASSANDRA_JMX_PORT_PROPERTY);
+    protected static final String IS_LOCAL = System.getProperty("it-local-cassandra");
 
     protected static final String REPAIR_METRICS_PID = "com.ericsson.bss.cassandra.ecchronos.core.osgi.TableRepairMetricsService";
 
@@ -46,6 +53,8 @@ public class TestBase
     protected static final String CONFIGURATION_NATIVE_PORT = "nativePort";
     protected static final String CONFIGURATION_JMX_HOST = "jmxHost";
     protected static final String CONFIGURATION_JMX_PORT = "jmxPort";
+
+    protected static final String CONFIGURATION_CREDENTIALS_FILE = "credentialsFile";
 
     protected static final String CONFIGURATION_STATISTICS_DIRECTORY = "metricsDirectory";
 
@@ -86,7 +95,6 @@ public class TestBase
                         "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
                                 + System.getProperty("karafVersion", "4.4.3")
                                 + ".jar"),
-
                 karafDistributionConfiguration()
                         .frameworkUrl(karafArtifactUrl)
                         .unpackDirectory(topDirectory)
@@ -106,16 +114,28 @@ public class TestBase
                 nativeConnectionOptions(),
                 jmxConnectionOptions(),
                 metricsOptions(),
-                junitBundles()
+                junitBundles(),
+                propagateSystemProperties(CASSANDRA_HOST_PROPERTY, CASSANDRA_NATIVE_PORT_PROPERTY)
         );
     }
 
     protected Option nativeConnectionOptions()
     {
-        return ConfigurationAdminOptions.newConfiguration(NATIVE_CONNECTION_PID)
+        ConfigurationOption configurationOption = ConfigurationAdminOptions.newConfiguration(NATIVE_CONNECTION_PID)
                 .put(CONFIGURATION_NATIVE_HOST, CASSANDRA_HOST)
-                .put(CONFIGURATION_NATIVE_PORT, CASSANDRA_NATIVE_PORT)
-                .asOption();
+                .put(CONFIGURATION_NATIVE_PORT, CASSANDRA_NATIVE_PORT);
+
+        if (IS_LOCAL == null)
+        {
+            URL url = TestBase.class.getClassLoader().getResource("credentials.properties");
+
+            if (url != null)
+            {
+                configurationOption = configurationOption.put(CONFIGURATION_CREDENTIALS_FILE, url.getPath());
+            }
+        }
+
+        return configurationOption.asOption();
     }
 
     protected Option jmxConnectionOptions()
