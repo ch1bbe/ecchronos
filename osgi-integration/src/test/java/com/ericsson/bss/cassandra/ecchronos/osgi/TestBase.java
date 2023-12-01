@@ -23,10 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.*;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
@@ -77,6 +74,19 @@ public class TestBase
                 .versionAsInProject();
 
         return options(
+                vmOption("--add-opens=java.base/java.net=ALL-UNNAMED"),
+                vmOption("--add-opens=java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED"),
+                vmOption("--patch-module"),
+                vmOption(
+                        "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
+                                + System.getProperty("karafVersion", "4.4.3")
+                                + ".jar"),
+                vmOption("--patch-module"),
+                vmOption(
+                        "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
+                                + System.getProperty("karafVersion", "4.4.3")
+                                + ".jar"),
+
                 karafDistributionConfiguration()
                         .frameworkUrl(karafArtifactUrl)
                         .unpackDirectory(topDirectory)
