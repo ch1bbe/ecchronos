@@ -104,12 +104,14 @@ public class DefaultRepairConfigurationProvider implements SchemaChangeListener,
 
     private void allTableOperation(String keyspaceName, Consumer<TableReference> consumer)
     {
-        for (TableMetadata tableMetadata : myCluster.getMetadata().getKeyspace(keyspaceName).getTables())
+        if (myCluster.getMetadata().getKeyspace(keyspaceName)  != null)
         {
-            String tableName = tableMetadata.getName();
-            TableReference tableReference = new TableReference(keyspaceName, tableName);
+            for (TableMetadata tableMetadata : myCluster.getMetadata().getKeyspace(keyspaceName).getTables()) {
+                String tableName = tableMetadata.getName();
+                TableReference tableReference = new TableReference(keyspaceName, tableName);
 
-            consumer.accept(tableReference);
+                consumer.accept(tableReference);
+            }
         }
     }
 
