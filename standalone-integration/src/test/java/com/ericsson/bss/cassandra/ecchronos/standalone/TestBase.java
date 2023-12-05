@@ -14,6 +14,8 @@
  */
 package com.ericsson.bss.cassandra.ecchronos.standalone;
 
+import com.datastax.driver.core.AuthProvider;
+import com.datastax.driver.core.PlainTextAuthProvider;
 import com.ericsson.bss.cassandra.ecchronos.core.JmxProxyFactoryImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,6 +41,9 @@ public class TestBase
     @BeforeClass
     public static void initialize() throws IOException
     {
+        AuthProvider authProvider = new PlainTextAuthProvider("eccuser", "eccpassword");
+        AuthProvider adminAuthProvider = new PlainTextAuthProvider("cassandra", "cassandra");
+
         myNativeConnectionProvider = LocalNativeConnectionProvider.builder()
                 .withPort(CASSANDRA_NATIVE_PORT)
                 .withLocalhost(CASSANDRA_HOST)
